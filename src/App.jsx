@@ -1,44 +1,368 @@
-import { useEffect, useState } from "react";
-import "./App.css";
+import { useEffect, useState, useRef } from "react";
 import WalletDetail from "./components/WalletDetail";
 import TransactionItem from "./components/TransactionItem";
+import PieRepresentation from "./components/PieRepresentation";
+import ExpenseRepresentation from "./components/ExpenseRepresentation";
+import Pagination from "./components/Pagination";
+import "./App.css";
+import AddBalanceModal from "./components/AddBalanceModal";
+import AddExpenseModal from "./components/AddExpenseModal";
+import EditExpenseModal from "./components/EditExpenseModal";
+import { useSnackbar } from "notistack";
 
 function App() {
+  const { enqueueSnackbar } = useSnackbar();
+  let totalRerenders = useRef(0);
   const [walletBalance, setWalletBalance] = useState(0);
   const [expensesAmount, setExpensesAmount] = useState(0);
-  const [transactionList, setTransactionList] = useState([
-    { title: "Samosa", date: Date.now(), amount: 150 },
-    { title: "Pizza", date: Date.now(), amount: 250 },
-  ]);
-  const [expensesList, setExpensesList] = useState([
-    { category: "Entertainment" },
-    { category: "Travel" },
-  ]);
+  const [transactionList, setTransactionList] = useState([]);
+  const [expensesList, setExpensesList] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    const loadAmounts = () => {
-      //Getting Wallet Balance on Initial Load
-      if (localStorage.getItem("WalletBalance") === null) {
-        localStorage.setItem("WalletBalance", 5000);
-        setWalletBalance(localStorage.getItem("WalletBalance"));
-      } else {
-        setWalletBalance(localStorage.getItem("WalletBalance"));
+    totalRerenders.current += 1;
+    console.log(
+      "Total Re-Renders of App Component => ",
+      totalRerenders.current
+    );
+  });
+
+  useEffect(() => {
+    if (!dataLoaded) {
+      const loadData = () => {
+        // Getting Wallet Balance on Initial Load
+        const savedWalletBalance = localStorage.getItem("WalletBalance");
+        if (savedWalletBalance === null) {
+          localStorage.setItem("WalletBalance", 5000);
+          setWalletBalance(5000);
+        } else {
+          setWalletBalance(parseInt(savedWalletBalance, 10));
+        }
+
+        // Getting Expenses Amount on Initial Load
+        const savedExpenseAmount = localStorage.getItem("ExpenseAmount");
+        if (savedExpenseAmount === null) {
+          localStorage.setItem("ExpenseAmount", 0);
+          setExpensesAmount(0);
+        } else {
+          setExpensesAmount(parseInt(savedExpenseAmount, 10));
+        }
+
+        // Getting Transaction List on Initial Load
+        const savedTransactionList = JSON.parse(
+          localStorage.getItem("TransactionList")
+        );
+        if (
+          savedTransactionList === null ||
+          savedTransactionList.length === 0
+        ) {
+          localStorage.setItem("TransactionList", JSON.stringify([]));
+          setTransactionList([]);
+        } else {
+          setTransactionList(savedTransactionList);
+        }
+
+        // Getting Expenses List on Initial Load
+        const savedExpensesList = JSON.parse(
+          localStorage.getItem("ExpensesList")
+        );
+        if (savedExpensesList === null || savedExpensesList.length === 0) {
+          localStorage.setItem("ExpensesList", JSON.stringify([]));
+          setExpensesList([]);
+        } else {
+          setExpensesList(savedExpensesList);
+        }
+      };
+
+      loadData();
+      setDataLoaded(true); // Ensure data loading happens only once
+    }
+  }, [dataLoaded]);
+
+  // useEffect(() => {
+  //   if (walletBalance !== 0) {
+  //     localStorage.setItem("WalletBalance", walletBalance);
+  //   }
+  // }, [walletBalance]);
+
+  // useEffect(() => {
+  //   if (expensesAmount !== 0) {
+  //     localStorage.setItem("ExpenseAmount", expensesAmount);
+  //   }
+  // }, [expensesAmount]);
+
+  // useEffect(() => {
+  //   if (transactionList.length !== 0) {
+  //     localStorage.setItem("TransactionList", JSON.stringify(transactionList));
+  //   } else {
+  //     console.log("Transaction List set to []");
+  //     localStorage.setItem("TransactionList", JSON.stringify([]));
+  //   }
+
+  //   const categoryTotals = transactionList.reduce((acc, transaction) => {
+  //     const { category, amount } = transaction;
+  //     if (!acc[category]) {
+  //       acc[category] = parseInt(0);
+  //     }
+  //     acc[category] = parseInt(acc[category]) + parseInt(amount);
+  //     return acc;
+  //   }, {});
+
+  //   const newExpensesList = Object.keys(categoryTotals).map((category) => ({
+  //     category,
+  //     amount: parseInt(categoryTotals[category]),
+  //   }));
+
+  //   setExpensesList(newExpensesList);
+  // }, [transactionList]);
+
+  // useEffect(() => {
+  //   if (expensesList.length !== 0) {
+  //     localStorage.setItem("ExpensesList", JSON.stringify(expensesList));
+  //   } else {
+  //     console.log("Expenses List set to []");
+  //     localStorage.setItem("ExpensesList", JSON.stringify([]));
+  //   }
+  // }, [expensesList]);
+
+  useEffect(() => {
+    if (dataLoaded) {
+      localStorage.setItem("WalletBalance", walletBalance);
+    }
+  }, [walletBalance, dataLoaded]);
+
+  useEffect(() => {
+    if (dataLoaded) {
+      localStorage.setItem("ExpenseAmount", expensesAmount);
+    }
+  }, [expensesAmount, dataLoaded]);
+
+  useEffect(() => {
+    if (dataLoaded) {
+      localStorage.setItem("TransactionList", JSON.stringify(transactionList));
+      const categoryTotals = transactionList.reduce((acc, transaction) => {
+        const { category, amount } = transaction;
+        if (!acc[category]) {
+          acc[category] = 0;
+        }
+        acc[category] += parseInt(amount, 10);
+        return acc;
+      }, {});
+
+      const newExpensesList = Object.keys(categoryTotals).map((category) => ({
+        category,
+        amount: categoryTotals[category],
+      }));
+
+      setExpensesList(newExpensesList);
+    }
+  }, [transactionList, dataLoaded]);
+
+  useEffect(() => {
+    if (dataLoaded) {
+      localStorage.setItem("ExpensesList", JSON.stringify(expensesList));
+    }
+  }, [expensesList, dataLoaded]);
+
+  const [addBalanceModalIsOpen, setAddBalanceModalIsOpen] = useState(false);
+  const [addExpenseModalIsOpen, setAddExpenseModalIsOpen] = useState(false);
+  // const [editExpenseModalIsOpen, setEditExpenseModalIsOpen] = useState(false);
+  const [editExpenseModalIsOpen, setEditExpenseModalIsOpen] = useState({
+    openstatus: false,
+    currentexpense: {},
+    transactionid: -1,
+  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  const currentItems = transactionList.slice(indexOfFirstItem, indexOfLastItem);
+
+  const openAddBalanceModal = () => setAddBalanceModalIsOpen(true);
+  const closeAddBalanceModal = () => setAddBalanceModalIsOpen(false);
+
+  const openAddExpenseModal = () => setAddExpenseModalIsOpen(true);
+  const closeAddExpenseModal = () => setAddExpenseModalIsOpen(false);
+
+  const openEditExpenseModal = (index) => {
+    // console.log(index);
+    setEditExpenseModalIsOpen({
+      openstatus: true,
+      currentexpense: transactionList[indexOfFirstItem + index],
+      transactionid: index,
+    });
+  };
+  const closeEditExpenseModal = () =>
+    setEditExpenseModalIsOpen({
+      openstatus: false,
+      currentexpense: {},
+      transactionid: -1,
+    });
+
+  const handleAddBalance = (amount) => {
+    // console.log("Adding amount => ", amount);
+    // console.log("Already have amount => ", walletBalance);
+
+    setWalletBalance(
+      (prevAmount) => parseInt(prevAmount, 10) + parseInt(amount, 10)
+    );
+    enqueueSnackbar("Balance Added Successfully", {
+      variant: "success",
+      anchorOrigin: { horizontal: "center", vertical: "bottom" },
+      className: "notification",
+    });
+  };
+  const handleAddExpense = (expensedata) => {
+    // console.log("Expense to be Added => ", expensedata);
+    if (parseInt(expensedata.amount) > parseInt(walletBalance)) {
+      // console.log("Enqueue add expense");
+      enqueueSnackbar(
+        "You Don't have Sufficient Balance to add more expenses",
+        {
+          variant: "error",
+          anchorOrigin: { horizontal: "center", vertical: "bottom" },
+          className: "notification",
+        }
+      );
+      return;
+    }
+
+    setExpensesAmount(
+      (prevExpenses) =>
+        parseInt(prevExpenses, 10) + parseInt(expensedata.amount, 10)
+    );
+    setWalletBalance(
+      (prevWalletBalance) =>
+        parseInt(prevWalletBalance, 10) - parseInt(expensedata.amount, 10)
+    );
+    setTransactionList((prevTransactions) => [
+      ...prevTransactions,
+      expensedata,
+    ]);
+    enqueueSnackbar("Expense Added Successfully", {
+      variant: "success",
+      anchorOrigin: { horizontal: "center", vertical: "bottom" },
+      className: "notification",
+    });
+
+    // const categoryTotals = transactionList.reduce((acc, transaction) => {
+    //   const { category, amount } = transaction;
+    //   if (!acc[category]) {
+    //     acc[category] = parseInt(0);
+    //   }
+    //   acc[category] = parseInt(acc[category]) + parseInt(amount);
+    //   return acc;
+    // }, {});
+
+    // // console.log("Category Totals:", categoryTotals);
+
+    // const newExpensesList = Object.keys(categoryTotals).map((category) => ({
+    //   category,
+    //   amount: parseInt(categoryTotals[category]),
+    // }));
+
+    // setExpensesList([...newExpensesList]);
+  };
+  const handleEditExpense = (updatedExpenseData, oldExpenseDataIndex) => {
+    if (
+      parseInt(updatedExpenseData.amount) >
+      parseInt(walletBalance) +
+        parseInt(transactionList[oldExpenseDataIndex + indexOfFirstItem].amount)
+    ) {
+      // console.log("Enqueue edit expense");
+      enqueueSnackbar(
+        "You Don't have Sufficient Balance to Edit current expense with higher amount",
+        {
+          variant: "error",
+          anchorOrigin: { horizontal: "center", vertical: "bottom" },
+          className: "notification",
+        }
+      );
+      return;
+    }
+
+    const newTransactionList = transactionList.map((transaction, index) => {
+      if (index === oldExpenseDataIndex + indexOfFirstItem) {
+        return {
+          ...updatedExpenseData,
+          date: new Date(updatedExpenseData.date).getTime(),
+        };
       }
+      return transaction;
+    });
 
-      //Getting Expenses Amount on Initial Load
-      if (localStorage.getItem("ExpenseAmount") === null) {
-        localStorage.setItem("ExpenseAmount", 0);
-        setExpensesAmount(localStorage.getItem("ExpenseAmount"));
-      } else {
-        setExpensesAmount(localStorage.getItem("ExpenseAmount"));
+    const categoryTotals = newTransactionList.reduce((acc, transaction) => {
+      const { category, amount } = transaction;
+      if (!acc[category]) {
+        acc[category] = parseInt(0);
       }
-    };
+      acc[category] = parseInt(acc[category]) + parseInt(amount);
+      return acc;
+    }, {});
 
-    loadAmounts();
-  }, []);
+    // console.log("Category Totals:", categoryTotals);
 
-  const handleWalletButtonClick = (type) => {
-    console.log(type);
+    const newExpensesList = Object.keys(categoryTotals).map((category) => ({
+      category,
+      amount: parseInt(categoryTotals[category]),
+    }));
+
+    // console.log("New Transaction List => ", newTransactionList);
+    setTransactionList(newTransactionList);
+
+    // console.log("New Expense List => ", newExpensesList);
+    setExpensesList(newExpensesList);
+
+    const amountToRemove = parseInt(
+      transactionList[oldExpenseDataIndex + indexOfFirstItem].amount
+    );
+    const amountToAdd = parseInt(updatedExpenseData.amount);
+    const adjustedExpenseAmount = amountToAdd - amountToRemove;
+    setExpensesAmount(
+      (prev) => parseInt(prev) + parseInt(adjustedExpenseAmount)
+    );
+    setWalletBalance(
+      (prev) => parseInt(prev) - parseInt(adjustedExpenseAmount)
+    );
+
+    enqueueSnackbar("Expense Updated Successfully", {
+      variant: "success",
+      anchorOrigin: { horizontal: "center", vertical: "bottom" },
+      className: "notification",
+    });
+
+    // console.log(
+    //   "Data to be Deleted => ",
+    //   transactionList[indexOfFirstItem + oldExpenseDataIndex]
+    // );
+  };
+
+  const deleteTransactionItem = (indexToDelete) => {
+    const filteredTransactionList = transactionList.filter(
+      (transactions, index) => {
+        return index !== indexToDelete + indexOfFirstItem;
+      }
+    );
+    // console.log("Filtered Transaction List => ", filteredTransactionList);
+    setWalletBalance(
+      (prev) =>
+        parseInt(prev) +
+        parseInt(transactionList[indexToDelete + indexOfFirstItem].amount)
+    );
+    setExpensesAmount(
+      (prev) =>
+        parseInt(prev) -
+        parseInt(transactionList[indexToDelete + indexOfFirstItem].amount)
+    );
+    setTransactionList([...filteredTransactionList]);
+    enqueueSnackbar("Expense Deleted Successfully", {
+      variant: "success",
+      anchorOrigin: { horizontal: "center", vertical: "bottom" },
+      className: "notification",
+    });
   };
 
   return (
@@ -53,7 +377,7 @@ function App() {
                 amount={walletBalance}
                 theme={"green"}
                 buttontext={"+ Add Income"}
-                clickHandler={handleWalletButtonClick}
+                clickHandler={openAddBalanceModal}
                 type={"addincome"}
               />
               <WalletDetail
@@ -61,31 +385,91 @@ function App() {
                 amount={expensesAmount}
                 theme={"red"}
                 buttontext={"+ Add Expense"}
-                clickHandler={handleWalletButtonClick}
+                clickHandler={openAddExpenseModal}
                 type={"addexpense"}
               />
             </div>
-            <div className="piesection"></div>
+            <div className="piesection">
+              {expensesList.length === 0 ? (
+                <>
+                  <div className="emptyPie">
+                    Start adding expenses to visualize your spending! 📈
+                  </div>
+                </>
+              ) : (
+                <>
+                  <PieRepresentation data={expensesList} />
+                </>
+              )}
+            </div>
           </div>
           <div className="bottom">
             <div className="transactions">
               <h2 className="secondaryheading">Recent Transactions</h2>
               <div className="transactioncontent">
-                {transactionList.map((transaction) => (
-                  <TransactionItem
-                    key={transaction.date}
-                    transaction={transaction}
-                  />
-                ))}
+                {transactionList.length === 0 ? (
+                  <>
+                    <div className="emptyTransactionList">
+                      Add transactions to see your spending history! 🧾
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {currentItems.map((transaction, index) => (
+                      <TransactionItem
+                        key={index}
+                        transactionid={index}
+                        transaction={transaction}
+                        editHandler={openEditExpenseModal}
+                        deleteHandler={deleteTransactionItem}
+                      />
+                    ))}
+                    <Pagination
+                      totalItems={transactionList.length}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      setCurrentPage={setCurrentPage}
+                    />
+                  </>
+                )}
               </div>
             </div>
             <div className="expenses">
               <h2 className="secondaryheading">Top Expenses</h2>
-              <div className="expensecontent"></div>
+              <div className="expensecontent">
+                {expensesList.length === 0 ? (
+                  <>
+                    <div className="emptyBarChart">
+                      Add your first expense to track spending! 📒
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <ExpenseRepresentation data={expensesList} />
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <AddBalanceModal
+        isOpen={addBalanceModalIsOpen}
+        onRequestClose={closeAddBalanceModal}
+        onAddBalance={handleAddBalance}
+      />
+      <AddExpenseModal
+        isOpen={addExpenseModalIsOpen}
+        onRequestClose={closeAddExpenseModal}
+        onAddExpense={handleAddExpense}
+      />
+      <EditExpenseModal
+        isOpen={editExpenseModalIsOpen.openstatus}
+        onRequestClose={closeEditExpenseModal}
+        onEditExpense={handleEditExpense}
+        currentExpenseData={editExpenseModalIsOpen.currentexpense}
+        transactionid={editExpenseModalIsOpen.transactionid}
+      />
     </>
   );
 }

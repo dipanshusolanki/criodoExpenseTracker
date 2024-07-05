@@ -1,10 +1,15 @@
 import React from "react";
 import "./TransactionItem.css";
 import { PiPizzaThin } from "react-icons/pi";
-import { IoIosCloseCircleOutline } from "react-icons/io";
-import { GoPencil } from "react-icons/go";
+import TransactionActionButton from "./TransactionActionButton";
 
-const TransactionItem = ({ transaction }) => {
+const TransactionItem = ({
+  transaction,
+  transactionid,
+  editHandler,
+  deleteHandler,
+}) => {
+  console.log(transaction, transactionid, editHandler, deleteHandler);
   return (
     <>
       <div className="transactionItem">
@@ -14,18 +19,24 @@ const TransactionItem = ({ transaction }) => {
           </div>
           <div className="transactionTitle">
             <h3 className="transactionName">{transaction.title}</h3>
-            <p className="transactionDate">{transaction.date}</p>
+            <p className="transactionDate">
+              {new Date(transaction.date).toLocaleDateString()}
+            </p>
           </div>
         </div>
         <div className="transactionActions">
           <p className="transactionAmount">&#8377;{transaction.amount}</p>
           <div className="actionButtons">
-            <button className="removeTransaction">
-              <IoIosCloseCircleOutline />
-            </button>
-            <button className="editTransaction">
-              <GoPencil />
-            </button>
+            <TransactionActionButton
+              action={"remove"}
+              transactionid={transactionid}
+              clickHandler={deleteHandler}
+            />
+            <TransactionActionButton
+              action={"edit"}
+              transactionid={transactionid}
+              clickHandler={editHandler}
+            />
           </div>
         </div>
       </div>
