@@ -90,3 +90,51 @@
   color: #000000;
   font-weight: 400;
 }
+
+/* Responsive Breakpoints */
+
+/* 1 - Mobiles */
+@media not all and (min-width: 640px) {
+  .addexpenseoverlay {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  .addexpensemodal {
+    width: 95%;
+    height: fit-content;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 2rem 0;
+    gap: 20px;
+  }
+
+  .addexpensemodalinputs {
+    width: 90%;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    margin-top: 1rem;
+  }
+
+  .addexpenseinput {
+    width: 90%;
+    height: 51px;
+    padding: 16px 0 13px 14px;
+    text-align: center;
+  }
+
+  .addexpensebutton,
+  .expensecancelbutton {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+  }
+
+  .addexpensebutton {
+    margin-top: 1rem;
+  }
+}
