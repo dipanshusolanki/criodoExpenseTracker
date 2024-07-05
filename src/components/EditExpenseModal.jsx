@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./EditExpenseModal.css";
 import Modal from "react-modal";
 
@@ -16,10 +16,6 @@ const EditExpenseModal = ({
     amount: "",
     category: "",
     date: "",
-  });
-
-  useEffect(() => {
-    // console.log(editExpenseDetails);
   });
 
   useEffect(() => {

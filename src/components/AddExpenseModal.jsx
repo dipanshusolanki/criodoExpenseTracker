@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import "./AddExpenseModal.css";
 import Modal from "react-modal";
 
@@ -10,12 +10,6 @@ const AddExpenseModal = ({ isOpen, onRequestClose, onAddExpense }) => {
     amount: "",
     category: "",
     date: "",
-  });
-
-  useEffect(() => {
-    // console.log(expenseDetails);
-    // console.log(Date.now(new Date(expenseDetails.date)));
-    // console.log(new Date(expenseDetails.date).toLocaleDateString());
   });
 
   const handleAddExpense = () => {
@@ -95,7 +89,6 @@ const AddExpenseModal = ({ isOpen, onRequestClose, onAddExpense }) => {
           value={expenseDetails.date}
           onChange={(e) => {
             setExpenseDetails({ ...expenseDetails, date: e.target.value });
-            // console.log("Time Stamps", new Date(e.target.value).getTime());
           }}
           placeholder="dd/mm/yyyy"
         />

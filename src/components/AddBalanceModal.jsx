@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Modal from "react-modal";
 import "./AddBalanceModal.css";
 
@@ -6,7 +6,6 @@ Modal.setAppElement("#root");
 
 const AddBalanceModal = ({ isOpen, onRequestClose, onAddBalance }) => {
   const [balanceAmount, setBalanceAmount] = useState("");
-
   const handleAddBalance = () => {
     const amount = parseInt(balanceAmount);
     if (!isNaN(amount)) {

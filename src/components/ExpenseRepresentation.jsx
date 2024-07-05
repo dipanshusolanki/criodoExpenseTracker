@@ -1,32 +1,11 @@
-import React from "react";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
-  Text,
 } from "recharts";
-
-const CustomYAxisTick = (props) => {
-  const { x, y, payload } = props;
-  return (
-    <Text
-      x={x}
-      y={y}
-      fill="black"
-      fontSize={12}
-      fontFamily="Open Sans"
-      textAnchor="end"
-      verticalAnchor="middle"
-    >
-      {payload.value}
-    </Text>
-  );
-};
 
 const ExpenseRepresentation = ({ data }) => {
   return (
@@ -34,7 +13,7 @@ const ExpenseRepresentation = ({ data }) => {
       <BarChart
         layout="vertical"
         data={data}
-        margin={{ top: 20, right: 0, left: 40, bottom: 5 }}
+        margin={{ top: 20, right: 10, left: 60, bottom: 5 }}
       >
         <XAxis tick={false} axisLine={false} type="number" domain={[0, 450]} />
         <YAxis

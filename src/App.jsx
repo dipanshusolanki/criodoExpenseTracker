@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from "react";
+import { useSnackbar } from "notistack";
 import WalletDetail from "./components/WalletDetail";
 import TransactionItem from "./components/TransactionItem";
 import PieRepresentation from "./components/PieRepresentation";
 import ExpenseRepresentation from "./components/ExpenseRepresentation";
 import Pagination from "./components/Pagination";
-import "./App.css";
 import AddBalanceModal from "./components/AddBalanceModal";
 import AddExpenseModal from "./components/AddExpenseModal";
 import EditExpenseModal from "./components/EditExpenseModal";
-import { useSnackbar } from "notistack";
+import "./App.css";
 
 function App() {
   const { enqueueSnackbar } = useSnackbar();
@@ -75,55 +75,9 @@ function App() {
       };
 
       loadData();
-      setDataLoaded(true); // Ensure data loading happens only once
+      setDataLoaded(true);
     }
   }, [dataLoaded]);
-
-  // useEffect(() => {
-  //   if (walletBalance !== 0) {
-  //     localStorage.setItem("WalletBalance", walletBalance);
-  //   }
-  // }, [walletBalance]);
-
-  // useEffect(() => {
-  //   if (expensesAmount !== 0) {
-  //     localStorage.setItem("ExpenseAmount", expensesAmount);
-  //   }
-  // }, [expensesAmount]);
-
-  // useEffect(() => {
-  //   if (transactionList.length !== 0) {
-  //     localStorage.setItem("TransactionList", JSON.stringify(transactionList));
-  //   } else {
-  //     console.log("Transaction List set to []");
-  //     localStorage.setItem("TransactionList", JSON.stringify([]));
-  //   }
-
-  //   const categoryTotals = transactionList.reduce((acc, transaction) => {
-  //     const { category, amount } = transaction;
-  //     if (!acc[category]) {
-  //       acc[category] = parseInt(0);
-  //     }
-  //     acc[category] = parseInt(acc[category]) + parseInt(amount);
-  //     return acc;
-  //   }, {});
-
-  //   const newExpensesList = Object.keys(categoryTotals).map((category) => ({
-  //     category,
-  //     amount: parseInt(categoryTotals[category]),
-  //   }));
-
-  //   setExpensesList(newExpensesList);
-  // }, [transactionList]);
-
-  // useEffect(() => {
-  //   if (expensesList.length !== 0) {
-  //     localStorage.setItem("ExpensesList", JSON.stringify(expensesList));
-  //   } else {
-  //     console.log("Expenses List set to []");
-  //     localStorage.setItem("ExpensesList", JSON.stringify([]));
-  //   }
-  // }, [expensesList]);
 
   useEffect(() => {
     if (dataLoaded) {
@@ -150,7 +104,7 @@ function App() {
       }, {});
 
       const newExpensesList = Object.keys(categoryTotals).map((category) => ({
-        category,
+        category: category.toUpperCase(),
         amount: categoryTotals[category],
       }));
 
@@ -166,7 +120,6 @@ function App() {
 
   const [addBalanceModalIsOpen, setAddBalanceModalIsOpen] = useState(false);
   const [addExpenseModalIsOpen, setAddExpenseModalIsOpen] = useState(false);
-  // const [editExpenseModalIsOpen, setEditExpenseModalIsOpen] = useState(false);
   const [editExpenseModalIsOpen, setEditExpenseModalIsOpen] = useState({
     openstatus: false,
     currentexpense: {},
@@ -175,10 +128,8 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
   const currentItems = transactionList.slice(indexOfFirstItem, indexOfLastItem);
 
   const openAddBalanceModal = () => setAddBalanceModalIsOpen(true);
@@ -188,7 +139,6 @@ function App() {
   const closeAddExpenseModal = () => setAddExpenseModalIsOpen(false);
 
   const openEditExpenseModal = (index) => {
-    // console.log(index);
     setEditExpenseModalIsOpen({
       openstatus: true,
       currentexpense: transactionList[indexOfFirstItem + index],
@@ -203,9 +153,6 @@ function App() {
     });
 
   const handleAddBalance = (amount) => {
-    // console.log("Adding amount => ", amount);
-    // console.log("Already have amount => ", walletBalance);
-
     setWalletBalance(
       (prevAmount) => parseInt(prevAmount, 10) + parseInt(amount, 10)
     );
@@ -216,9 +163,7 @@ function App() {
     });
   };
   const handleAddExpense = (expensedata) => {
-    // console.log("Expense to be Added => ", expensedata);
     if (parseInt(expensedata.amount) > parseInt(walletBalance)) {
-      // console.log("Enqueue add expense");
       enqueueSnackbar(
         "You Don't have Sufficient Balance to add more expenses",
         {
@@ -247,24 +192,6 @@ function App() {
       anchorOrigin: { horizontal: "center", vertical: "bottom" },
       className: "notification",
     });
-
-    // const categoryTotals = transactionList.reduce((acc, transaction) => {
-    //   const { category, amount } = transaction;
-    //   if (!acc[category]) {
-    //     acc[category] = parseInt(0);
-    //   }
-    //   acc[category] = parseInt(acc[category]) + parseInt(amount);
-    //   return acc;
-    // }, {});
-
-    // // console.log("Category Totals:", categoryTotals);
-
-    // const newExpensesList = Object.keys(categoryTotals).map((category) => ({
-    //   category,
-    //   amount: parseInt(categoryTotals[category]),
-    // }));
-
-    // setExpensesList([...newExpensesList]);
   };
   const handleEditExpense = (updatedExpenseData, oldExpenseDataIndex) => {
     if (
@@ -272,7 +199,6 @@ function App() {
       parseInt(walletBalance) +
         parseInt(transactionList[oldExpenseDataIndex + indexOfFirstItem].amount)
     ) {
-      // console.log("Enqueue edit expense");
       enqueueSnackbar(
         "You Don't have Sufficient Balance to Edit current expense with higher amount",
         {
@@ -303,17 +229,12 @@ function App() {
       return acc;
     }, {});
 
-    // console.log("Category Totals:", categoryTotals);
-
     const newExpensesList = Object.keys(categoryTotals).map((category) => ({
       category,
       amount: parseInt(categoryTotals[category]),
     }));
 
-    // console.log("New Transaction List => ", newTransactionList);
     setTransactionList(newTransactionList);
-
-    // console.log("New Expense List => ", newExpensesList);
     setExpensesList(newExpensesList);
 
     const amountToRemove = parseInt(
@@ -333,11 +254,6 @@ function App() {
       anchorOrigin: { horizontal: "center", vertical: "bottom" },
       className: "notification",
     });
-
-    // console.log(
-    //   "Data to be Deleted => ",
-    //   transactionList[indexOfFirstItem + oldExpenseDataIndex]
-    // );
   };
 
   const deleteTransactionItem = (indexToDelete) => {
@@ -346,7 +262,6 @@ function App() {
         return index !== indexToDelete + indexOfFirstItem;
       }
     );
-    // console.log("Filtered Transaction List => ", filteredTransactionList);
     setWalletBalance(
       (prev) =>
         parseInt(prev) +

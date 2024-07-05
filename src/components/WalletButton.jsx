@@ -1,4 +1,3 @@
-import React from "react";
 import "./WalletButton.css";
 
 const WalletButton = ({ text, color, clickevent, type }) => {

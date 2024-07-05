@@ -1,4 +1,3 @@
-import React from "react";
 import { HiArrowLongLeft } from "react-icons/hi2";
 import { HiArrowLongRight } from "react-icons/hi2";
 import "./Pagination.css";
