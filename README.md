@@ -1,8 +1,31 @@
-# React + Vite
+# Expense Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Expense Tracker helps you to track your daily expenses by allowing you to add, edit, delete expenses, add balance, and view expenses through various chart representations.
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+### Adding Balance
+
+- Easily add your current balance to keep track of your total funds.
+
+### Adding/Deleting/Editing Expenses
+
+- **Add Expenses**: Record your expenses by providing details like amount, category, and date.
+- **Edit Expenses**: Modify any existing expense details to keep your records accurate.
+- **Delete Expenses**: Remove any expenses that are no longer relevant.
+
+### Bar Chart Representation
+
+- View your expenses categorized in a bar chart to quickly see where your money is going.
+
+### Pie Chart Representation
+
+- Visualize your expenses by category in a pie chart for a more detailed breakdown.
