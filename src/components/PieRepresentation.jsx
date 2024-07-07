@@ -51,7 +51,6 @@ const PieRepresentation = ({ data }) => {
     <>
       <ResponsiveContainer>
         <PieChart>
-          {/* <Pie data={transactionList}></Pie> */}
           <Pie
             data={data}
             dataKey="amount"
@@ -68,7 +67,6 @@ const PieRepresentation = ({ data }) => {
               />
             ))}
           </Pie>
-          {/* <Tooltip /> */}
           <Legend content={CustomExpenseLegend} />
           <Tooltip />
         </PieChart>

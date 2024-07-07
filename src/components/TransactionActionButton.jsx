@@ -1,4 +1,3 @@
-import React from "react";
 import "./TransactionActionButton.css";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { GoPencil } from "react-icons/go";

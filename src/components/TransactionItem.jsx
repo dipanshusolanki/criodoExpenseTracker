@@ -1,4 +1,3 @@
-import React from "react";
 import "./TransactionItem.css";
 import { PiPizzaThin } from "react-icons/pi";
 import TransactionActionButton from "./TransactionActionButton";
